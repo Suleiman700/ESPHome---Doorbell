@@ -1,0 +1,68 @@
+substitutions:
+  name: doorbell
+  friendly_name: Doorbell
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  min_version: 2024.6.0
+  name_add_mac_suffix: true
+  project:
+    name: esphome.web
+    version: dev
+
+esp8266:
+  board: nodemcuv2
+  framework:
+    version: recommended
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+# Allow Over-The-Air updates
+ota:
+  - platform: esphome
+
+# Allow provisioning Wi-Fi via serial
+improv_serial:
+
+wifi:
+  # Set up a wifi access point
+  ap: {}
+
+captive_portal:
+
+dashboard_import:
+  package_import_url: github://esphome/example-configs/esphome-web/esp32.yaml@main
+  import_full_config: true
+
+
+
+
+# To have a "next url" for improv serial
+web_server:
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO4  # D2 for the doorbell switch
+      mode: INPUT_PULLUP
+    name: "${friendly_name} Switch"
+    filters:
+      - delayed_on: 50ms  # Debounce
+      - delayed_off: 50ms
+    on_press:
+      - logger.log: "Doorbell pressed, triggering relay."
+      - switch.turn_on: relay
+      - delay: 150ms
+      - switch.turn_off: relay
+
+switch:
+  - platform: gpio
+    pin: GPIO13  # D7 for the relay
+    id: relay
+    name: "${friendly_name} Relay"
+    restore_mode: ALWAYS_OFF

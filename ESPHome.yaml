@@ -62,7 +62,11 @@ binary_sensor:
 
 switch:
   - platform: gpio
-    pin: GPIO13  # D7 for the relay
-    id: relay
     name: "${friendly_name} Relay"
-    restore_mode: ALWAYS_OFF
+    id: relay
+    pin:
+      number: GPIO13
+      inverted: True
+      mode:
+        output: true
+        open_drain: True

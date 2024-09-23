@@ -45,20 +45,43 @@ dashboard_import:
 # To have a "next url" for improv serial
 web_server:
 
+# binary_sensor:
+#   - platform: gpio
+#     pin:
+#       number: GPIO4  # D2 for the doorbell switch
+#       mode: INPUT_PULLUP
+#     name: "${friendly_name} Switch"
+#     filters:
+#       - delayed_on: 50ms  # Debounce
+#       - delayed_off: 50ms
+#     on_press:
+#       - logger.log: "Doorbell pressed, triggering relay."
+#       - switch.turn_on: relay
+#       - delay: 150ms
+#       - switch.turn_off: relay
+
+button:
+  - platform: template
+    name: "${friendly_name} Doorbell Button"
+    id: doorbell_button
+    on_press:
+      - logger.log: "Doorbell pressed, triggering relay ON."
+      - switch.turn_on: relay
+      - delay: 150ms  # Keep the relay on for 500ms
+      - switch.turn_off: relay
+      - logger.log: "Relay turned OFF after delay."
+
 binary_sensor:
   - platform: gpio
     pin:
       number: GPIO4  # D2 for the doorbell switch
       mode: INPUT_PULLUP
-    name: "${friendly_name} Switch"
+    name: "${friendly_name} Doorbell Switch"
     filters:
-      - delayed_on: 50ms  # Debounce
-      - delayed_off: 50ms
+      - delayed_on: 100ms  # Debounce to avoid multiple triggers
+      - delayed_off: 100ms
     on_press:
-      - logger.log: "Doorbell pressed, triggering relay."
-      - switch.turn_on: relay
-      - delay: 150ms
-      - switch.turn_off: relay
+      - button.press: doorbell_button
 
 switch:
   - platform: gpio
